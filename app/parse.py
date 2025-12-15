@@ -139,6 +139,7 @@ def write_products_to_csv(products: [Product], name: str) -> None:
         writer.writerows([astuple(product) for product in products])
 
 
+
 def scrape_category_page(category_name: str, url: str):
     print(f"Start scraping category: {category_name}...")
     driver = get_driver()
