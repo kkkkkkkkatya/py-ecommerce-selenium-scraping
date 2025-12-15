@@ -7,6 +7,7 @@ from selenium.common.exceptions import (
     StaleElementReferenceException,
     ElementClickInterceptedException)
 from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from urllib.parse import urljoin
 
@@ -78,15 +79,22 @@ def parse_hdd_block_prices(product_soup: Tag) -> dict[str, float]:
 
         for button in buttons:
             if not button.get_property("disabled"):
+                old_price = driver.find_element(By.CLASS_NAME, "price").text
                 button.click()
-                value = button.get_property("value")
-                price_text = driver.find_element(By.CLASS_NAME, "price").text
-                prices[value] = float(price_text.replace("$", ""))
+                try:
+                    WebDriverWait(driver, 2).until(
+                        lambda d: d.find_element(By.CLASS_NAME, "price").text != old_price
+                    )
+                except:
+                    pass
+
+                new_price = driver.find_element(By.CLASS_NAME, "price").text
+                prices[button.get_property("value")] = float(new_price.replace("$", ""))
+
     except NoSuchElementException:
         pass
 
     return prices
-
 
 def parse_single_product(product: Tag) -> Product:
     hdd_prices = parse_hdd_block_prices(product)
