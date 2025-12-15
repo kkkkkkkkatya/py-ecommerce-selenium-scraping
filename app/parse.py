@@ -10,7 +10,6 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from urllib.parse import urljoin
 
-import requests
 from bs4 import BeautifulSoup, Tag
 
 BASE_URL = "https://webscraper.io/"
@@ -136,12 +135,8 @@ def write_products_to_csv(products: [Product], name: str) -> None:
     file_name = f"{name}.csv"
     with open(file_name, "w", encoding="utf-8", newline="") as file:
         writer = csv.writer(file)
-        headers = PRODUCT_FIELDS[:-1]
-        writer.writerow(headers)
-
-        for product in products:
-            row = astuple(product)
-            writer.writerow(row[:-1])
+        writer.writerow(PRODUCT_FIELDS)
+        writer.writerows([astuple(product) for product in products])
 
 
 def scrape_category_page(category_name: str, url: str):
